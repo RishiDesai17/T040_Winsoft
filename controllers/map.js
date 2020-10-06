@@ -41,13 +41,42 @@ exports.get_desired_location = (req, res) => {
 
 exports.get_map = async(req, res) => {
     try{
-        const map_details = await Map.findOne().sort({created_at: 1})
+        const map_details = await Map.find().select('title _id').sort({created_at: 1})
         console.log(map_details)
         res.status(200).json({
             map_details
         })
     }
     catch(error){
+        console.log(error)
+        res.status(500).send("Something went wrong")
+    }
+}
+
+exports.create_map =async(req, res) => {
+    try {
+        const { title, map } = req.body
+        await new Map({
+            title,
+            map
+        }).save()
+        res.status(200).json({
+            message:'success'
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("Something went wrong")
+    }
+}
+
+exports.single_map =async(req, res) => {
+    try {
+        const { map_id } = req.params
+        const detail = await Map.findById(map_id).select('map')
+        res.status(200).json({
+            data:detail
+        })
+    } catch (error) {
         console.log(error)
         res.status(500).send("Something went wrong")
     }

@@ -88,7 +88,7 @@ const customStyles = {
   
 }
 
-const Create = () => {
+const Create = (props) => {
   const [title, settitle] = useState('');
   const [mapData, setMapData] = useState([]);
   const [saved, setsaved] = useState(false)
@@ -119,19 +119,23 @@ const Create = () => {
         neighbours:val.neighbours
       }}
     },{})
-    // const postData = JSON.stringify({
-    //   title,
-    //   map:objectMap
-    // })
-    // const requestOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-type': 'application/json'
-    //   },
-    //   body: postData
-    // };
-    // let result = await fetch("/api",requestOptions);
-    // let data = await result.json();
+    const postData = JSON.stringify({
+      title,
+      map:objectMap
+    })
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: postData
+    };
+    let result = await fetch("/api/map/",requestOptions);
+    let data = await result.json();
+    if(data.message=='success') {
+      alert('New map was created successfully');
+      props.history.push('/')
+    }
     console.log(objectMap);
   }
   return (<div>

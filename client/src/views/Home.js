@@ -1,4 +1,4 @@
-import { Button, Container, Grid, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Button, Container, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, TextField, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import MainNav from '../components/MainNav'
 import { encrypted } from '../config'
@@ -30,18 +30,19 @@ const useStyles = makeStyles(() => ({
 function Home() {
   const classes = useStyles();
   const [keyVal, setKeyVal] = useState('');
-  const [encryptedMess, setencryptedMess] = useState(encrypted);
+  const [encryptedMess, setencryptedMess] = useState('');
   const [decrypted, setdecrypted] = useState(null);
   const [enemyLocations, setenemyLocations] = useState(null);
   const [desired_location, setdesired_location] = useState(null);
   const [gmarkers, setgmarkers] = useState(null);
   const [mapData, setmapData] = useState(null);
   const [barGraph, setbarGraph] = useState(null);
-  
+  const [mapOptions, setmapOptions] = useState([]);
+  const [selectedMap, setselectedMap] = useState('')
 
   const decrypt = async() => {
-    if(encryptedMess === "" || keyVal === ""){
-      alert("Enter both fields")
+    if(encryptedMess === "" || keyVal === "" || setselectedMap===''){
+      alert("Enter all the three fields")
       return
     }
     const postData = JSON.stringify({
@@ -120,7 +121,7 @@ function Home() {
     }
     
   }
-
+  
   useEffect(() => {
     const collect = async() => {
       const result = await fetch("/api/map/",{
@@ -131,17 +132,29 @@ function Home() {
       })
       const data =await result.json();
       console.log(data);
-      setmapData(data.map_details.map);
-      let mapped = data.map_details.map;
-      fillCanvas(mapped);
+      setmapOptions(data.map_details)
     }
     collect();
-  },[])
-  
+  }, [])
+
+  const changeMap = async(mapId) => {
+    if (mapId=='') return;
+    setselectedMap(mapId);
+    const result = await fetch(`/api/map/single/${mapId}`,{
+      method:"GET",
+      headers: {
+        'Content-type': 'application/json'
+      }
+    })
+    const data =await result.json();
+    setmapData(data.data.map);
+    fillCanvas(data.data.map);
+  }
 
   const fillCanvas= (canvasmapdata) => {
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
+    context.clearRect(0, 0, 600, 300);
     let mapped = canvasmapdata;
     const offset =25;
     // Create a custom fillText funciton that flips the canvas, draws the text, and then flips it back
@@ -188,6 +201,26 @@ function Home() {
             Enter Details
           </Typography>
           <Grid container spacing={4}>
+            <Grid item ms={12} xs={12}>
+              <FormControl variant="outlined" style={{width:'100%'}}>
+                <InputLabel id="demo-simple-select-outlined-label">Select Map</InputLabel>
+                <Select
+                  labelId="demo-simple-select-outlined-label"
+                  id="demo-simple-select-outlined"
+                  value={selectedMap}
+                  fullWidth
+                  onChange={e => changeMap(e.target.value)}
+                  label="Select Map"
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {mapOptions.map((temp,index) => 
+                    <MenuItem key={`map${index}`} value={temp._id}>{temp.title}</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Grid>
             <Grid item md={12} xs={12}>
               <TextField 
               id="outlined-basic" 
