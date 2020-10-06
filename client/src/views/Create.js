@@ -126,7 +126,8 @@ const Create = (props) => {
     const requestOptions = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       },
       body: postData
     };

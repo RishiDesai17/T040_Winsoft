@@ -6,7 +6,7 @@ const map = require('./sample_map.json');
 
 exports.dbInit = async() => {
     try{
-        await mongoose.connect("mongodb://localhost:27017/t040_winsoft", {
+        await mongoose.connect("mongodb+srv://newUser_123:test123@t040-winsoft.ifd0h.mongodb.net/test?retryWrites=true&w=majority", {
             useUnifiedTopology: true,
             useNewUrlParser: true
         });

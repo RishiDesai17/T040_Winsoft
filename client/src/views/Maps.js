@@ -31,10 +31,11 @@ function Maps() {
 
   React.useEffect(() => {
     const collect = async() => {
-      const result = await fetch("/api/decryption/history",{
+      const result = await fetch("/api/decryption/history", {
         method:'GET',
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         }
       });
       const data = await result.json();

@@ -53,7 +53,8 @@ function Home() {
     var requestOptions = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       },
       body: postData
     };
@@ -79,7 +80,8 @@ function Home() {
     var requestOptions = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       },
       body: postData
     };
@@ -95,7 +97,8 @@ function Home() {
       let requestOptions = {
         method: 'POST',
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         },
         body: postData
       };
@@ -127,7 +130,8 @@ function Home() {
       const result = await fetch("/api/map/",{
         method:"GET",
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         }
       })
       const data =await result.json();
@@ -143,7 +147,8 @@ function Home() {
     const result = await fetch(`/api/map/single/${mapId}`,{
       method:"GET",
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       }
     })
     const data =await result.json();
