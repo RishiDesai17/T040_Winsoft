@@ -8,7 +8,8 @@ const decryptSchema = new mongoose.Schema({
     desired_location: {
         type: String,
         required: true
-    }
+    },
+    timestamp: {type:Number}
 })
 
 module.exports = mongoose.model('Decrypt', decryptSchema)

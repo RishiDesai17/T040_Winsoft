@@ -58,14 +58,14 @@ exports.get_history = async(req, res) => {
 
 exports.add = async(req, res) => {
     try{
-        const { decrypted, desired_location } = req.body
+        const { decrypted, desired_location, timestamp } = req.body
         await new Decrypt({
             decrypted, 
-            desired_location
+            desired_location,
+            timestamp
         }).save()
         res.status(200).json({
-            decrypted, 
-            desired_location
+            message:'success'
         })
     }
     catch(error){

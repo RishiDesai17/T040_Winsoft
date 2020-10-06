@@ -8,6 +8,8 @@ exports.get_desired_location = (req, res) => {
         let min_edges = Number.POSITIVE_INFINITY
         let desired_location = null
 
+        let all_edges = []
+
         for(let location in map){
             if(map[location].enemy){
                 continue
@@ -16,6 +18,10 @@ exports.get_desired_location = (req, res) => {
             for(enemy of enemies){
                 total_edges += minimum_edges_possible_BFS(map, location, enemy)
             }
+            all_edges.push({ 
+                location,
+                total_edges
+            })
             if(total_edges < min_edges){
                 min_edges = total_edges
                 desired_location = location
@@ -23,7 +29,8 @@ exports.get_desired_location = (req, res) => {
         }
         
         res.status(200).json({
-            desired_location
+            desired_location,
+            all_edges
         })
     }
     catch(error){

@@ -18,6 +18,9 @@ function MainNav(props) {
               <Nav.Link  href="/maps">
                 <div >Maps</div>
               </Nav.Link>
+              <Nav.Link  href="/create">
+                <div >Create</div>
+              </Nav.Link>
               
             </Nav>
             <Nav className="ml-auto" style={{display:'contents'}}>

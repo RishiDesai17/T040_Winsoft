@@ -2,6 +2,7 @@ import { Button, Container, Grid, makeStyles, TextField, Typography } from '@mat
 import React, { useEffect, useState } from 'react'
 import MainNav from '../components/MainNav'
 import { encrypted } from '../config'
+import BarGraph from './BarGraph'
 import Positions from './Positions'
 
 
@@ -11,8 +12,8 @@ const useStyles = makeStyles(() => ({
     
   },
   gmap:{
-    marginTop:10,
-    marginBottom:10
+    marginTop:20,
+    marginBottom:20
   },
   heading:{
     fontWeight: 700,
@@ -29,12 +30,13 @@ const useStyles = makeStyles(() => ({
 function Home() {
   const classes = useStyles();
   const [keyVal, setKeyVal] = useState('');
-  const [encryptedMess, setencryptedMess] = useState('');
+  const [encryptedMess, setencryptedMess] = useState(encrypted);
   const [decrypted, setdecrypted] = useState(null);
   const [enemyLocations, setenemyLocations] = useState(null);
   const [desired_location, setdesired_location] = useState(null);
   const [gmarkers, setgmarkers] = useState(null);
   const [mapData, setmapData] = useState(null);
+  const [barGraph, setbarGraph] = useState(null);
   
 
   const decrypt = async() => {
@@ -83,9 +85,11 @@ function Home() {
     const data = await fetch("/api/map/get-desired-location",requestOptions)
     const result = await data.json();
     if(result && result.desired_location) {
+      setbarGraph(result.all_edges);
       let postData = JSON.stringify({
         decrypted,
-        desired_location:result.desired_location
+        desired_location:result.desired_location,
+        timestamp:Date.now()
       })
       let requestOptions = {
         method: 'POST',
@@ -255,7 +259,10 @@ function Home() {
               { gmarkers && 
                 <Positions markers={gmarkers}/>
               }
-              </Grid>
+            </Grid>
+            <Grid container justify="center" item xs={12} md={12}>
+              {barGraph && <BarGraph edges={barGraph}/> }
+            </Grid>
           </Grid>
         </div>
       </Container>

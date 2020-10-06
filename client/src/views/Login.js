@@ -9,6 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import useStore from '../zustand/store';
 import { useHistory } from 'react-router-dom';
+import MainNav from '../components/MainNav';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -48,6 +49,7 @@ export default function Login(props) {
   }
 
   return (<div>
+    <MainNav/>
     <Container component="main" maxWidth="xs" className={classes.fixHeight}>
       <CssBaseline />
       <div className={classes.paper}>
