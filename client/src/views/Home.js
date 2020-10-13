@@ -1,7 +1,8 @@
-import { Button, Container, Grid, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Button, Container, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, TextField, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import MainNav from '../components/MainNav'
 import { encrypted } from '../config'
+import BarGraph from './BarGraph'
 import Positions from './Positions'
 
 
@@ -11,8 +12,8 @@ const useStyles = makeStyles(() => ({
     
   },
   gmap:{
-    marginTop:10,
-    marginBottom:10
+    marginTop:20,
+    marginBottom:20
   },
   heading:{
     fontWeight: 700,
@@ -35,11 +36,13 @@ function Home() {
   const [desired_location, setdesired_location] = useState(null);
   const [gmarkers, setgmarkers] = useState(null);
   const [mapData, setmapData] = useState(null);
-  
+  const [barGraph, setbarGraph] = useState(null);
+  const [mapOptions, setmapOptions] = useState([]);
+  const [selectedMap, setselectedMap] = useState('')
 
   const decrypt = async() => {
-    if(encryptedMess === "" || keyVal === ""){
-      alert("Enter both fields")
+    if(encryptedMess === "" || keyVal === "" || setselectedMap===''){
+      alert("Enter all the three fields")
       return
     }
     const postData = JSON.stringify({
@@ -50,7 +53,8 @@ function Home() {
     var requestOptions = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       },
       body: postData
     };
@@ -76,21 +80,25 @@ function Home() {
     var requestOptions = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json'
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
       },
       body: postData
     };
     const data = await fetch("/api/map/get-desired-location",requestOptions)
     const result = await data.json();
     if(result && result.desired_location) {
+      setbarGraph(result.all_edges);
       let postData = JSON.stringify({
         decrypted,
-        desired_location:result.desired_location
+        desired_location:result.desired_location,
+        timestamp:Date.now()
       })
       let requestOptions = {
         method: 'POST',
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         },
         body: postData
       };
@@ -116,28 +124,42 @@ function Home() {
     }
     
   }
-
+  
   useEffect(() => {
     const collect = async() => {
       const result = await fetch("/api/map/",{
         method:"GET",
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         }
       })
       const data =await result.json();
       console.log(data);
-      setmapData(data.map_details.map);
-      let mapped = data.map_details.map;
-      fillCanvas(mapped);
+      setmapOptions(data.map_details)
     }
     collect();
-  },[])
-  
+  }, [])
+
+  const changeMap = async(mapId) => {
+    if (mapId=='') return;
+    setselectedMap(mapId);
+    const result = await fetch(`/api/map/single/${mapId}`,{
+      method:"GET",
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
+      }
+    })
+    const data =await result.json();
+    setmapData(data.data.map);
+    fillCanvas(data.data.map);
+  }
 
   const fillCanvas= (canvasmapdata) => {
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
+    context.clearRect(0, 0, 600, 300);
     let mapped = canvasmapdata;
     const offset =25;
     // Create a custom fillText funciton that flips the canvas, draws the text, and then flips it back
@@ -184,6 +206,26 @@ function Home() {
             Enter Details
           </Typography>
           <Grid container spacing={4}>
+            <Grid item ms={12} xs={12}>
+              <FormControl variant="outlined" style={{width:'100%'}}>
+                <InputLabel id="demo-simple-select-outlined-label">Select Map</InputLabel>
+                <Select
+                  labelId="demo-simple-select-outlined-label"
+                  id="demo-simple-select-outlined"
+                  value={selectedMap}
+                  fullWidth
+                  onChange={e => changeMap(e.target.value)}
+                  label="Select Map"
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {mapOptions.map((temp,index) => 
+                    <MenuItem key={`map${index}`} value={temp._id}>{temp.title}</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Grid>
             <Grid item md={12} xs={12}>
               <TextField 
               id="outlined-basic" 
@@ -255,7 +297,10 @@ function Home() {
               { gmarkers && 
                 <Positions markers={gmarkers}/>
               }
-              </Grid>
+            </Grid>
+            <Grid container justify="center" item xs={12} md={12}>
+              {barGraph && <BarGraph edges={barGraph}/> }
+            </Grid>
           </Grid>
         </div>
       </Container>

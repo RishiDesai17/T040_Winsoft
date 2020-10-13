@@ -28,27 +28,22 @@ const useStyles = makeStyles({
 function Maps() {
   const [maps, setmaps] = useState([]);
   const classes = useStyles();
+
   React.useEffect(() => {
     const collect = async() => {
-      const result = await fetch("/api/decryption/history",{
+      const result = await fetch("/api/decryption/history", {
         method:'GET',
         headers: {
-          'Content-type': 'application/json'
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth-token')
         }
       });
       const data = await result.json();
-      
       console.log(data);
-      // let data=[
-      //   {decrypted_message:'dfdf issiffifie',desired_location:'Gong skd',date:new Date().toLocaleDateString()},
-      //   {decrypted_message:'fgfhghghghgdfdf issiffifie',desired_location:'Gongdgfgfg skd',date:new Date().toLocaleDateString()}
-      
-      // ]
       setmaps(data.history);
     }
     collect();
   },[])
-
 
   return (
     <div>
@@ -68,7 +63,11 @@ function Maps() {
                     Desired Location
                   </strong>
                 </TableCell>
-                
+                <TableCell align="right">
+                  <strong>
+                    Date
+                  </strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -78,6 +77,7 @@ function Maps() {
                     {row.decrypted}
                   </TableCell>
                   <TableCell align="right">{row.desired_location}</TableCell>
+                  <TableCell align="right">{new Date(row.timestamp).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

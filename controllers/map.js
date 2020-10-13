@@ -8,6 +8,8 @@ exports.get_desired_location = (req, res) => {
         let min_edges = Number.POSITIVE_INFINITY
         let desired_location = null
 
+        let all_edges = []
+
         for(let location in map){
             if(map[location].enemy){
                 continue
@@ -16,6 +18,10 @@ exports.get_desired_location = (req, res) => {
             for(enemy of enemies){
                 total_edges += minimum_edges_possible_BFS(map, location, enemy)
             }
+            all_edges.push({ 
+                location,
+                total_edges
+            })
             if(total_edges < min_edges){
                 min_edges = total_edges
                 desired_location = location
@@ -23,7 +29,8 @@ exports.get_desired_location = (req, res) => {
         }
         
         res.status(200).json({
-            desired_location
+            desired_location,
+            all_edges
         })
     }
     catch(error){
@@ -34,13 +41,42 @@ exports.get_desired_location = (req, res) => {
 
 exports.get_map = async(req, res) => {
     try{
-        const map_details = await Map.findOne().sort({created_at: 1})
+        const map_details = await Map.find().select('title _id').sort({created_at: 1})
         console.log(map_details)
         res.status(200).json({
             map_details
         })
     }
     catch(error){
+        console.log(error)
+        res.status(500).send("Something went wrong")
+    }
+}
+
+exports.create_map =async(req, res) => {
+    try {
+        const { title, map } = req.body
+        await new Map({
+            title,
+            map
+        }).save()
+        res.status(200).json({
+            message:'success'
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("Something went wrong")
+    }
+}
+
+exports.single_map =async(req, res) => {
+    try {
+        const { map_id } = req.params
+        const detail = await Map.findById(map_id).select('map')
+        res.status(200).json({
+            data:detail
+        })
+    } catch (error) {
         console.log(error)
         res.status(500).send("Something went wrong")
     }
